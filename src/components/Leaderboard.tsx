@@ -1,138 +1,117 @@
-/**
- * Leaderboard Component - Shows top traders by FairScore
- */
+"use client";
 
-'use client';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Card } from './design-system/Card';
+import { TierBadge } from './design-system/TierBadge';
+import { Trophy, Crown, Medal } from 'lucide-react';
+import { useTier } from '@/context/TierContext';
 
-import React, { useState, useMemo } from 'react';
-import { LeaderboardEntry, TierType } from '@/types';
-import { Card, TierBadge } from './Common';
-import { formatNumber, shortenWallet } from '@/utils';
-import { TIER_CONFIG } from '@/lib/tier';
+const LeaderboardRow = ({
+  rank,
+  address,
+  score,
+  tier,
+  isCurrentUser
+}: {
+  rank: number,
+  address: string,
+  score: number,
+  tier: 'bronze' | 'silver' | 'gold' | 'diamond',
+  isCurrentUser?: boolean
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: rank * 0.05 }}
+      className={`
+        flex items-center gap-4 p-4 rounded-xl transition-all duration-300
+        ${isCurrentUser
+          ? 'bg-[var(--color-primary)]/10 border border-[var(--color-primary)] shadow-[0_0_20px_var(--color-glow)]'
+          : 'bg-white/5 border border-transparent hover:bg-white/10'
+        }
+      `}
+    >
+      <div className="w-8 font-heading font-bold text-xl text-center text-gray-500">
+        {rank <= 3 ? (
+          rank === 1 ? <Crown className="text-[var(--color-gold)] w-6 h-6 mx-auto" fill="currentColor" /> :
+            rank === 2 ? <Medal className="text-[var(--color-silver)] w-6 h-6 mx-auto" /> :
+              <Medal className="text-[var(--color-bronze)] w-6 h-6 mx-auto" />
+        ) : rank}
+      </div>
 
-interface LeaderboardProps {
-  currentUserWallet?: string;
-  currentUserScore?: number;
-}
+      <div className="flex-1">
+        <div className="font-mono text-sm tracking-wide text-gray-300">
+          {address}
+          {isCurrentUser && <span className="ml-2 text-xs bg-[var(--color-primary)] text-black px-2 py-0.5 rounded-full font-bold">YOU</span>}
+        </div>
+      </div>
 
-// Generate mock leaderboard data
-const generateMockLeaderboard = (): LeaderboardEntry[] => {
-  const entries: LeaderboardEntry[] = [];
-
-  for (let i = 0; i < 50; i++) {
-    const score = Math.floor(Math.random() * 1000);
-    let tier: TierType = 'bronze';
-    if (score >= 800) tier = 'diamond';
-    else if (score >= 600) tier = 'gold';
-    else if (score >= 300) tier = 'silver';
-
-    entries.push({
-      rank: i + 1,
-      wallet: 'Trader' + Math.random().toString(36).substring(7).toUpperCase(),
-      score,
-      tier,
-      totalVolume: Math.floor(Math.random() * 500000),
-      successRate: 85 + Math.random() * 15,
-      trustConnections: Math.floor(Math.random() * 100),
-    });
-  }
-
-  // Sort by score descending
-  return entries.sort((a, b) => b.score - a.score).slice(0, 10);
+      <div className="flex items-center gap-4">
+        <div className="scale-75 origin-right">
+          {/* Simple badge approximation or use real component but small */}
+          <div className={`w-3 h-3 rounded-full ${tier === 'diamond' ? 'bg-cyan-400' :
+              tier === 'gold' ? 'bg-yellow-400' :
+                tier === 'silver' ? 'bg-gray-300' : 'bg-orange-600'
+            } shadow-[0_0_10px_currentColor]`} />
+        </div>
+        <div className="font-heading font-bold text-lg text-white w-16 text-right">
+          {score}
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
-export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserWallet, currentUserScore }) => {
-  const [leaderboard] = useState(generateMockLeaderboard());
+export const Leaderboard = () => {
+  const { score, tier } = useTier(); // Use context for current user
 
-  // Find user's rank
-  const userRank = useMemo(() => {
-    if (!currentUserScore) return null;
-
-    let rank = 1;
-    for (const entry of leaderboard) {
-      if (entry.score > currentUserScore) rank++;
-    }
-    return rank;
-  }, [currentUserScore, leaderboard]);
+  const dummyData = [
+    { address: "8x...92A1", score: 982, tier: "diamond" as const },
+    { address: "4k...3L9z", score: 945, tier: "diamond" as const },
+    { address: "2p...M4nB", score: 890, tier: "diamond" as const },
+    { address: "9z...K2j1", score: 780, tier: "gold" as const },
+    { address: "5m...P8xR", score: 755, tier: "gold" as const },
+    { address: "7v...H5c3", score: 620, tier: "gold" as const },
+    { address: "3b...N9kL", score: 540, tier: "silver" as const },
+  ];
 
   return (
-    <Card className="md:col-span-1">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Top Traders</h2>
-        <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">
-          Real-time
-        </span>
+    <Card variant="standard" className="h-full max-h-[600px] flex flex-col">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-3 bg-[var(--color-surface)] rounded-xl border border-white/10">
+          <Trophy className="text-[var(--color-primary)]" size={24} />
+        </div>
+        <div>
+          <h2 className="text-xl font-heading font-bold">Top Traders</h2>
+          <p className="text-sm text-gray-400">Competing for 10,000 USDC</p>
+        </div>
       </div>
 
-      {/* User's Rank */}
-      {userRank && (
-        <div className="mb-6 p-4 bg-cyan-900/20 border border-cyan-600/50 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-slate-400 text-sm">Your Rank</p>
-              <p className="text-2xl font-bold text-cyan-400">#{userRank}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-slate-400 text-sm">Your Score</p>
-              <p className="text-xl font-bold">{currentUserScore}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Leaderboard Table */}
-      <div className="space-y-2 max-h-96 overflow-y-auto">
-        {leaderboard.map((entry, idx) => (
-          <div
-            key={entry.wallet}
-            className="flex items-center justify-between p-3 bg-slate-800/30 hover:bg-slate-800/60 rounded-lg border border-slate-700/50 transition-colors"
-          >
-            {/* Rank & Wallet */}
-            <div className="flex-1 flex items-center gap-3">
-              <div className="text-right w-8">
-                <span className="font-bold text-lg">
-                  {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${entry.rank}`}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{entry.wallet}</p>
-                <p className="text-xs text-slate-500">
-                  Vol: ${formatNumber(entry.totalVolume / 1000, 1)}K
-                </p>
-              </div>
-            </div>
-
-            {/* Tier Badge */}
-            <div className="ml-2">
-              <TierBadge tier={entry.tier} score={entry.score} size="sm" showScore={true} />
-            </div>
-
-            {/* Success Rate */}
-            <div className="ml-4 text-right hidden md:block">
-              <p className="text-xs text-slate-500">Success</p>
-              <p className="text-sm font-semibold text-green-400">
-                {entry.successRate.toFixed(1)}%
-              </p>
-            </div>
-          </div>
+      <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+        {dummyData.map((user, index) => (
+          <LeaderboardRow key={index} rank={index + 1} {...user} />
         ))}
+        {/* Current User Row always visible if not in top list (simulated) */}
+        <div className="sticky bottom-0 mt-4 pt-4 border-t border-white/10 bg-gradient-to-t from-[var(--color-surface)] to-transparent p-2">
+          <LeaderboardRow
+            rank={4291}
+            address="You...Wallet"
+            score={score}
+            tier={tier}
+            isCurrentUser
+          />
+        </div>
       </div>
 
-      {/* Footer Stats */}
-      <div className="mt-6 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm">
-        <div>
-          <p className="text-slate-500">Avg Score</p>
-          <p className="text-lg font-bold">
-            {Math.round(leaderboard.reduce((a, b) => a + b.score, 0) / leaderboard.length)}
-          </p>
-        </div>
-        <div>
-          <p className="text-slate-500">Total Volume</p>
-          <p className="text-lg font-bold">
-            ${formatNumber(leaderboard.reduce((a, b) => a + b.totalVolume, 0) / 1e6, 1)}M
-          </p>
-        </div>
-      </div>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        className="w-full mt-4 py-3 text-sm font-medium text-[var(--color-primary)] border border-[var(--color-primary)]/30 rounded-xl hover:bg-[var(--color-primary)]/10 transition-colors"
+      >
+        View Full Leaderboard
+      </motion.button>
     </Card>
   );
 };
