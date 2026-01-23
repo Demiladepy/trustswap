@@ -1,6 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrustSwap - Solana DEX with FairScale Reputation Scoring
 
-## Getting Started
+A production-ready token swap platform on Solana where **FairScale reputation scores determine user experience, fees, limits, and feature access**. Built for the $700 USDC bounty challenge.
+
+## 🚀 Project Overview
+
+TrustSwap integrates FairScale's reputation scoring system into a DEX, creating a trust-based trading ecosystem with:
+- **Dynamic fees** (0.5% to 0%) based on reputation tier
+- **Tier-gated features** (limit orders, MEV protection, exclusive pools)
+- **Gamification** (quests, achievements, leaderboards)
+- **AI risk assessment** using Claude API
+- **Beautiful, animated UI** with particle effects and glass morphism
+
+## 📊 Tier System
+
+| Tier | Score | Fee | Daily Limit | Features |
+|------|-------|-----|-------------|----------|
+| **Bronze** | 0-299 | 0.5% | $1K | Basic swap, standard support |
+| **Silver** | 300-599 | 0.3% | $10K | Priority routing, premium support |
+| **Gold** | 600-799 | 0.1% | $50K | MEV protection, limit orders, analytics |
+| **Diamond** | 800+ | 0% | Unlimited | All features + VIP treatment |
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Next.js 14** (App Router)
+- **React 19** + TypeScript
+- **TailwindCSS 4** + shadcn/ui
+- **Framer Motion** (animations)
+- **Recharts** (data visualization)
+- **Zustand** (state management)
+
+### Blockchain & APIs
+- **@solana/web3.js** (Solana blockchain)
+- **@solana/wallet-adapter** (wallet integration)
+- **Jupiter Aggregator API** (token swaps)
+- **FairScale API** (reputation scores)
+- **Anthropic Claude API** (AI risk analysis)
+
+## 🚀 Getting Started
 
 First, run the development server:
 
