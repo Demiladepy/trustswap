@@ -6,6 +6,8 @@ import { CircleDot, Star, Crown, Gem } from 'lucide-react';
 import { useTier } from '@/context/TierContext';
 import { clsx, type ClassValue } from 'clsx';
 
+import { getTheme, TierType } from '@/lib/theme';
+
 function cn(...inputs: ClassValue[]) {
     return clsx(inputs);
 }
@@ -16,7 +18,8 @@ interface TierBadgeProps {
 }
 
 export const TierBadge = ({ size = 'md', showLabel = true }: TierBadgeProps) => {
-    const { tier } = useTier();
+    const { tier, score } = useTier();
+    const theme = getTheme(tier);
 
     const sizeClasses = {
         sm: "w-8 h-8",
@@ -27,56 +30,67 @@ export const TierBadge = ({ size = 'md', showLabel = true }: TierBadgeProps) => 
 
     const iconSizes = {
         sm: 16,
-        md: 24,
-        lg: 40,
+        md: 20,
+        lg: 32,
         hero: 64,
     };
 
-    const TierIcon = {
+    const icons = {
         bronze: CircleDot,
         silver: Star,
         gold: Crown,
         diamond: Gem,
-    }[tier];
+    };
+
+    const TierIcon = icons[tier as keyof typeof icons] || icons.bronze;
 
     return (
         <div className="flex flex-col items-center justify-center gap-3">
             <div className="relative">
-                {/* Glow Effect */}
+                {/* Rotating outer glow */}
                 <motion.div
-                    className={cn(
-                        "absolute inset-0 rounded-full bg-[var(--color-primary)] opacity-40 blur-xl",
-                        size === 'hero' ? 'blur-3xl' : 'blur-xl'
-                    )}
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.4, 0.6, 0.4],
-                    }}
-                    transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                />
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 scale-110 pointer-events-none"
+                >
+                    <div
+                        className={cn(
+                            "rounded-full blur-2xl opacity-60",
+                            size === 'hero' ? 'w-32 h-32 blur-3xl' : 'w-12 h-12 blur-xl'
+                        )}
+                        style={{ background: theme.glow }}
+                    />
+                </motion.div>
 
                 {/* Badge Circle */}
                 <motion.div
                     className={cn(
-                        "relative flex items-center justify-center rounded-full border-2 border-[var(--color-primary)] bg-[var(--color-surface)]/50 backdrop-blur-md shadow-[0_0_15px_var(--color-glow)]",
+                        "relative flex items-center justify-center rounded-full border-2 bg-gray-900/80 backdrop-blur-md",
                         sizeClasses[size]
                     )}
-                    whileHover={{ scale: 1.05, rotate: 5 }}
+                    style={{ borderColor: theme.primary }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                 >
-                    {/* Rotating Ring */}
+                    {/* Gradient border */}
+                    <div className={cn(
+                        "absolute inset-0 rounded-full bg-gradient-to-br p-[2px]",
+                        theme.gradient
+                    )}>
+                        <div className="w-full h-full rounded-full bg-gray-900" />
+                    </div>
+
+                    {/* Pulse effect */}
                     <motion.div
-                        className="absolute inset-[-2px] rounded-full border-t-2 border-[var(--color-primary)] opacity-80"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 rounded-full border-2 pointer-events-none"
+                        style={{ borderColor: theme.primary }}
                     />
 
                     <TierIcon
                         size={iconSizes[size]}
-                        className="text-[var(--color-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                        className="relative z-10"
+                        style={{ color: theme.primary }}
                     />
                 </motion.div>
             </div>
@@ -87,7 +101,11 @@ export const TierBadge = ({ size = 'md', showLabel = true }: TierBadgeProps) => 
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center"
                 >
-                    <span className="block font-heading font-bold uppercase tracking-widest text-[var(--color-primary)] text-glow">
+                    <span className={cn(
+                        "block font-heading font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r",
+                        theme.gradient,
+                        size === 'hero' ? 'text-2xl' : 'text-xs'
+                    )}>
                         {tier} Tier
                     </span>
                 </motion.div>

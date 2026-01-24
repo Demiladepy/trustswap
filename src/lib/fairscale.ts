@@ -1,35 +1,35 @@
-import axios from 'axios';
+import { fetchFairScore as apiFetch, getTierFromScore } from '@/api/fairscale';
 
-const API_URL = process.env.NEXT_PUBLIC_FAIRSCALE_API_URL || 'https://swagger.api.fairscale.xyz';
-const API_KEY = process.env.NEXT_PUBLIC_FAIRSCALE_API_KEY || '';
+export const fetchFairScore = async (wallet: string) => {
+    return await apiFetch(wallet);
+};
 
-export interface FairScoreData {
-    score: number;
-    tier: string;
-    rank?: number;
-    percentile?: number;
-    history?: { date: string; score: number }[];
-}
+export const calculateTier = (score: number) => {
+    return getTierFromScore(score);
+};
 
-export const getFairScore = async (walletAddress: string): Promise<FairScoreData | null> => {
-    try {
-        const response = await axios.get(`${API_URL}/score`, {
-            headers: {
-                'fairkey': API_KEY
-            },
-            params: {
-                wallet: walletAddress
-            }
-        });
-
-        if (response.data) {
-            // Normalize data structure if needed depending on actual API response
-            // Assuming response.data contains { score: 123, tier: 'silver', ... }
-            return response.data;
+export const getTierBenefits = (tier: string) => {
+    const benefits = {
+        bronze: {
+            fee: 0.005,
+            dailyLimit: 1000,
+            features: ['basic_swaps']
+        },
+        silver: {
+            fee: 0.003,
+            dailyLimit: 10000,
+            features: ['basic_swaps', 'priority_support']
+        },
+        gold: {
+            fee: 0.001,
+            dailyLimit: 50000,
+            features: ['basic_swaps', 'priority_support', 'limit_orders']
+        },
+        diamond: {
+            fee: 0,
+            dailyLimit: Infinity,
+            features: ['basic_swaps', 'priority_support', 'limit_orders', 'diamond_pool', 'zero_slippage']
         }
-        return null;
-    } catch (error) {
-        console.error('Error fetching FairScore:', error);
-        return null;
-    }
+    };
+    return benefits[tier as keyof typeof benefits] || benefits.bronze;
 };

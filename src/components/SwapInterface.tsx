@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpDown, Settings, Info, ChevronDown, RotateCw, Wallet } from 'lucide-react';
+import { ArrowUpDown, Settings, Info, ChevronDown, RotateCw, Wallet, Loader2, Sparkles } from 'lucide-react';
 import { Card } from './design-system/Card';
 import { Button } from './design-system/Button';
 import { useTier } from '@/context/TierContext';
@@ -11,6 +11,14 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { RiskAnalyzer } from './RiskAnalyzer';
+import { getTheme } from '@/lib/theme';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
+import { clsx, type ClassValue } from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+  return clsx(inputs);
+}
 
 interface TokenInputProps {
   label: string;
@@ -31,45 +39,58 @@ const TokenInput = ({
   onSelectToken,
   readOnly
 }: TokenInputProps) => (
-  <div className="bg-[#0D0221]/40 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
-    <div className="flex justify-between mb-2">
-      <span className="text-sm text-gray-400 font-medium">{label}</span>
-      <span className="text-xs text-gray-500">Balance: {balance}</span>
-    </div>
-    <div className="flex items-center gap-4">
-      <div className="flex-1">
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="0.0"
-          readOnly={readOnly}
-          className="w-full bg-transparent text-3xl font-heading font-medium text-white placeholder-gray-600 focus:outline-none"
-        />
-        <div className="text-sm text-gray-500 mt-1">
-          ≈ ${token && value ? (parseFloat(value) * (token.priceUSD || 0)).toFixed(2) : '0.00'}
-        </div>
+  <div className="group relative">
+    <div className="absolute -inset-0.5 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+    <div className="relative bg-black/40 rounded-2xl p-4 border border-white/5 group-hover:border-white/10 transition-all duration-300">
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</span>
+        <button className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1 group/bal">
+          <Wallet className="w-3 h-3" />
+          Balance: <span className="text-gray-300 font-mono">{balance}</span>
+        </button>
       </div>
-      <button
-        onClick={onSelectToken}
-        className="flex items-center gap-2 bg-[#1E1E2E] hover:bg-[#252535] px-3 py-2 rounded-full border border-white/10 transition-colors"
-      >
-        {token ? (
-          <>
-            {token.logoURI && <img src={token.logoURI} alt={token.symbol} className="w-6 h-6 rounded-full" />}
-            <span className="font-semibold">{token.symbol}</span>
-          </>
-        ) : (
-          <span>Select</span>
-        )}
-        <ChevronDown size={14} className="text-gray-400" />
-      </button>
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="0.0"
+            readOnly={readOnly}
+            className="w-full bg-transparent text-4xl font-heading font-bold text-white placeholder-gray-800 focus:outline-none"
+          />
+          <div className="text-sm text-gray-600 mt-1 font-medium">
+            ≈ ${token && value ? (parseFloat(value) * (token.priceUSD || 0)).toFixed(2) : '0.00'}
+          </div>
+        </div>
+        <button
+          onClick={onSelectToken}
+          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-2xl border border-white/10 transition-all duration-300 group/btn"
+        >
+          {token ? (
+            <>
+              {token.logoURI ? (
+                <img src={token.logoURI} alt={token.symbol} className="w-7 h-7 rounded-full shadow-lg" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-[10px] uppercase font-bold text-white">
+                  {token.symbol[0]}
+                </div>
+              )}
+              <span className="font-bold text-lg">{token.symbol}</span>
+            </>
+          ) : (
+            <span className="font-bold">Select Token</span>
+          )}
+          <ChevronDown size={16} className="text-gray-500 group-hover/btn:text-white transition-colors" />
+        </button>
+      </div>
     </div>
   </div>
 );
 
 export const SwapInterface = () => {
   const { tier, score, refreshScore } = useTier();
+  const theme = getTheme(tier);
   const { publicKey, connected, wallet } = useWallet();
   const { connection } = useConnection();
 
@@ -82,12 +103,10 @@ export const SwapInterface = () => {
   const [isQuoting, setIsQuoting] = useState(false);
   const [rotation, setRotation] = useState(0);
 
-  // Load tokens on mount
   useEffect(() => {
     const loadTokens = async () => {
       const list = await getTokenList();
       setTokens(list);
-      // Defaults
       const sol = list.find(t => t.symbol === 'SOL');
       const usdc = list.find(t => t.symbol === 'USDC');
       if (sol) setPayToken(sol);
@@ -96,14 +115,12 @@ export const SwapInterface = () => {
     loadTokens();
   }, []);
 
-  // Fetch Quote Debounced
   useEffect(() => {
     const fetchQuote = async () => {
       if (!payToken || !receiveToken || !payAmount || parseFloat(payAmount) <= 0) {
         setQuote(null);
         return;
       }
-
       setIsQuoting(true);
       try {
         const q = await getSwapQuote(
@@ -124,24 +141,35 @@ export const SwapInterface = () => {
     return () => clearTimeout(timeout);
   }, [payAmount, payToken, receiveToken]);
 
-
   const handleSwap = async () => {
     if (!quote || !publicKey) return;
 
     setIsSwapping(true);
+    const toastId = toast.loading('Executing swap on Solana...');
+
     try {
-      // Mock execution for now as per plan, but structured realistically
       const result = await executeSwap(wallet, quote, connection);
 
       if (result.success) {
-        // Success animation or toast would go here
-        alert(`Swap Successful! Tx: ${result.txHash.slice(0, 8)}...`);
-        // Refresh score as swap might affect stats
+        toast.success('Swap Successful!', {
+          id: toastId,
+          description: `Transferred ${payAmount} ${payToken?.symbol} for tokens. Tx: ${result.txHash.slice(0, 8)}...`,
+          icon: <Sparkles className="w-5 h-5 text-green-400" />
+        });
+
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: [theme.primary, theme.accent, '#ffffff']
+        });
+
         refreshScore();
         setPayAmount('');
+        setQuote(null);
       }
     } catch (e) {
-      alert('Swap failed');
+      toast.error('Swap failed', { id: toastId });
     } finally {
       setIsSwapping(false);
     }
@@ -156,117 +184,123 @@ export const SwapInterface = () => {
     setQuote(null);
   };
 
-  // Calculate Fee Discount logic for display
   const getFeeDiscount = () => {
     switch (tier) {
-      case 'diamond': return 100; // 0% fees
+      case 'diamond': return 100;
       case 'gold': return 80;
       case 'silver': return 40;
-      default: return 0; // Bronze
+      default: return 0;
     }
   };
 
-  const feeSaved = quote ? (quote.fee * (getFeeDiscount() / 100)).toFixed(4) : '0';
-
   return (
-    <div className="w-full max-w-md mx-auto relative">
-      <div className="absolute -inset-4 bg-[var(--color-primary)] opacity-20 blur-2xl rounded-full" />
+    <div className="w-full max-w-lg mx-auto relative group" id="swap">
+      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-2xl rounded-[2.5rem] opacity-50 group-hover:opacity-100 transition-opacity" />
 
-      <Card variant="elevated" className="relative z-10 transition-colors duration-500 border-t border-[var(--color-primary)]/20">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-heading font-semibold text-white">Swap</h2>
-          <Button variant="ghost" size="icon" className="hover:bg-white/5 rounded-full">
-            <Settings size={20} />
-          </Button>
-        </div>
-
-        <div className="space-y-2 relative">
-          <TokenInput
-            label="You Pay"
-            value={payAmount}
-            onChange={setPayAmount}
-            token={payToken}
-            balance={connected ? "12.45" : "-"} // Would fetch real balance in full implementation
-            onSelectToken={() => { }}
-          />
-
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <motion.button
-              onClick={handleFlip}
-              animate={{ rotate: rotation }}
-              className="w-10 h-10 rounded-xl bg-[#1E1E2E] border border-[var(--color-primary)]/30 flex items-center justify-center text-[var(--color-primary)] shadow-lg hover:scale-110 active:scale-95 transition-transform"
-            >
-              <ArrowUpDown size={20} />
-            </motion.button>
+      <Card variant="elevated" className="relative z-10 p-2 overflow-visible rounded-[2rem] border-white/10" tier={tier}>
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-heading font-black text-white tracking-tight">SWAP</h2>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-[0.2em] mt-1">Reputation-Powered Trading</p>
+            </div>
+            <button className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all">
+              <Settings size={20} className="text-gray-400" />
+            </button>
           </div>
 
-          <TokenInput
-            label="You Receive"
-            value={quote ? (parseInt(quote.outAmount) / (10 ** (receiveToken?.decimals || 6))).toFixed(6) : ''}
-            onChange={() => { }}
-            token={receiveToken}
-            balance={connected ? "450.00" : "-"}
-            onSelectToken={() => { }}
-            readOnly
+          <div className="space-y-3 relative">
+            <TokenInput
+              label="You Pay"
+              value={payAmount}
+              onChange={setPayAmount}
+              token={payToken}
+              balance={connected ? "12.45" : "0.00"}
+              onSelectToken={() => { }}
+            />
+
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+              <motion.button
+                onClick={handleFlip}
+                animate={{ rotate: rotation }}
+                whileHover={{ scale: 1.1, boxShadow: `0 0 20px ${theme.glow}` }}
+                whileTap={{ scale: 0.9 }}
+                className={cn(
+                  "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl border-4 border-[#1E1E2E] transition-all",
+                  theme.gradient
+                )}
+              >
+                <ArrowUpDown size={22} className="stroke-[3]" />
+              </motion.button>
+            </div>
+
+            <TokenInput
+              label="You Receive"
+              value={quote ? (parseInt(quote.outAmount) / (10 ** (receiveToken?.decimals || 6))).toFixed(6) : ''}
+              onChange={() => { }}
+              token={receiveToken}
+              balance={connected ? "450.00" : "0.00"}
+              onSelectToken={() => { }}
+              readOnly
+            />
+          </div>
+
+          <AnimatePresence>
+            {quote && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-6 p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3"
+              >
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500 font-medium flex items-center gap-1.5">Exchange Rate <Info size={14} /></span>
+                  <span className="text-white font-mono font-bold">1 {payToken?.symbol} ≈ {(parseFloat(quote.outAmount) / parseFloat(quote.inAmount)).toFixed(4)} {receiveToken?.symbol}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm border-t border-white/5 pt-3">
+                  <span className="text-gray-500 font-medium">Reputation Benefit</span>
+                  <div className="flex gap-2">
+                    <span className="bg-green-500/20 text-green-400 text-[10px] font-black px-2 py-1 rounded-md tracking-tighter">-{getFeeDiscount()}% FEES</span>
+                    <span className="bg-white/5 text-gray-300 text-[10px] font-black px-2 py-1 rounded-md tracking-tighter">DIAMOND TIER</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <RiskAnalyzer
+            amount={payAmount}
+            tokenSymbol={payToken?.symbol || ''}
+            userScore={score}
+            isVisible={!!payAmount && !!payToken && parseFloat(payAmount) > 0}
           />
-        </div>
 
-        {/* Info Section */}
-        <AnimatePresence>
-          {quote && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 p-3 rounded-lg bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/10 text-sm space-y-2"
-            >
-              <div className="flex justify-between items-center text-gray-400">
-                <span className="flex items-center gap-1">Rate <Info size={12} /></span>
-                <span className="text-white">1 {payToken?.symbol} ≈ {(parseFloat(quote.outAmount) / parseFloat(quote.inAmount)).toFixed(4)} {receiveToken?.symbol}</span>
+          <div className="mt-8">
+            {!connected ? (
+              <div className="group/wal">
+                <WalletMultiButton className="!w-full !h-16 !rounded-2xl !bg-gradient-to-r !from-blue-600 !to-cyan-500 !text-white !font-black !text-lg !shadow-xl !border-none !flex !justify-center !items-center !transition-transform active:!scale-95" />
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[var(--color-primary)] font-medium text-xs flex items-center gap-1">
-                  <StarFilled tier={tier} /> {tier.charAt(0).toUpperCase() + tier.slice(1)} Tier
-                </span>
-                <span className="text-green-400 font-bold text-xs">-{getFeeDiscount()}% Fees</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            ) : (
+              <Button
+                tier={tier}
+                fullWidth
+                size="lg"
+                className="h-16 rounded-2xl text-xl font-heading font-black tracking-widest shadow-2xl"
+                onClick={handleSwap}
+                isLoading={isSwapping || isQuoting}
+                disabled={!payAmount || !quote}
+              >
+                {isSwapping ? 'EXECUTING...' : isQuoting ? 'GETTING RATE...' : 'SWAP NOW'}
+              </Button>
+            )}
+          </div>
 
-        <RiskAnalyzer
-          amount={payAmount}
-          tokenSymbol={payToken?.symbol || ''}
-          userScore={score}
-          isVisible={!!payAmount && !!payToken && parseFloat(payAmount) > 0}
-        />
-
-        <div className="mt-6">
-          {!connected ? (
-            <WalletMultiButton style={{ width: '100%', justifyContent: 'center' }} />
-          ) : (
-            <Button
-              variant="primary"
-              fullWidth
-              size="lg"
-              className="rounded-xl shadow-xl shadow-[var(--color-primary)]/20 text-lg"
-              onClick={handleSwap}
-              isLoading={isSwapping || isQuoting}
-              disabled={!payAmount || !quote}
-            >
-              {isSwapping ? 'Swapping...' : isQuoting ? 'Fetching Rate...' : 'Swap Tokens'}
-            </Button>
-          )}
+          <div className="mt-6 flex justify-center items-center gap-2 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+            <Shield size={12} />
+            Secured by Jupiter API & FairScale Protocol
+          </div>
         </div>
       </Card>
     </div>
-  );
-};
-
-const StarFilled = ({ tier }: { tier: string }) => {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="inline-block relative -top-px">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-    </svg>
   );
 };

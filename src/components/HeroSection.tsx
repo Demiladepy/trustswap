@@ -1,120 +1,126 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTier } from '@/context/TierContext';
 import { TierBadge } from './design-system/TierBadge';
 import { ParticleBackground } from './ParticleBackground';
 import { Button } from './design-system/Button';
-import { Wallet } from 'lucide-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { getTheme } from '@/lib/theme';
+import { TrendingUp, Award, Activity } from 'lucide-react';
+import CountUp from 'react-countup';
+import { clsx, type ClassValue } from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+    return clsx(inputs);
+}
+
+const Stat = ({ icon: Icon, label, value }: any) => (
+    <div className="flex flex-col items-center gap-1 group">
+        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">
+            <Icon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+        </div>
+        <span className="text-2xl font-bold text-white mt-2">{value}</span>
+        <span className="text-xs uppercase tracking-widest text-gray-500 font-medium">{label}</span>
+    </div>
+);
 
 export const HeroSection = () => {
-    const { score, tier, nextTierScore, progressToNextTier, setScore, isLoading } = useTier();
+    const { score, tier, nextTierScore, progressToNextTier, isLoading, setScore } = useTier();
+    const theme = getTheme(tier);
 
-    const [displayScore, setDisplayScore] = useState(0);
-
-    useEffect(() => {
-        let start = 0;
-        const end = score;
-        const duration = 2000;
-        const startTime = performance.now();
-
-        const animate = (currentTime: number) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-
-            const easeOutQuart = (x: number) => 1 - Math.pow(1 - x, 4);
-
-            setDisplayScore(Math.floor(start + (end - start) * easeOutQuart(progress)));
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        };
-
-        requestAnimationFrame(animate);
-    }, [score]);
+    const nextTierName = tier === 'bronze' ? 'silver' : tier === 'silver' ? 'gold' : tier === 'gold' ? 'diamond' : 'MAX';
 
     return (
-        <section className="relative min-h-[60vh] flex flex-col items-center justify-center overflow-hidden px-4 py-20 z-10">
-            {/* Background Ambience */}
-            <ParticleBackground tier={tier} />
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--color-primary)] opacity-10 blur-[100px] rounded-full animate-pulse-slow" />
-            </div>
+        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-20" id="hero">
+            {/* Animated particle background */}
+            <ParticleBackground tier={tier as any} />
 
-            <div className="relative z-10 container max-w-4xl mx-auto text-center space-y-12">
+            {/* Gradient overlay system */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0D0221]/50 to-[#0D0221] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] rounded-full opacity-20 blur-[120px] pointer-events-none" style={{ background: `radial-gradient(circle, ${theme.primary}, transparent)` }} />
 
-                {/* Animated Badge & Score */}
-                <div className="flex flex-col items-center gap-6">
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                    >
-                        <TierBadge size="hero" />
-                    </motion.div>
+            <div className="relative z-10 container max-w-5xl mx-auto text-center px-4">
 
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex flex-col items-center"
-                    >
-                        <h1 className="text-7xl md:text-9xl font-heading font-bold gradient-text text-transparent bg-clip-text bg-gradient-to-b from-white to-[var(--color-primary)] drop-shadow-2xl">
-                            {isLoading ? '...' : displayScore}
-                        </h1>
-                        <p className="text-xl text-gray-400 font-medium tracking-wide mt-2">FAIRSCALE REPUTATION SCORE</p>
-                    </motion.div>
-                </div>
+                {/* Animated Tier Badge */}
+                <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 20, duration: 1 }}
+                    className="flex justify-center mb-12"
+                >
+                    <TierBadge size="hero" />
+                </motion.div>
 
-                {/* Progress Bar */}
+                {/* Score display */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    <h2 className="text-sm uppercase tracking-[0.4em] text-gray-500 font-bold mb-4">
+                        FairScale Reputation Score
+                    </h2>
+                    <div className="relative inline-block">
+                        <CountUp
+                            end={score}
+                            duration={2.5}
+                            separator=","
+                            className={cn(
+                                "text-8xl md:text-[10rem] font-heading font-black bg-clip-text text-transparent bg-gradient-to-b",
+                                theme.gradient
+                            )}
+                            style={{
+                                filter: `drop-shadow(0 0 20px ${theme.glow})`
+                            }}
+                        />
+                        {isLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm rounded-3xl">
+                                <Activity className="w-12 h-12 animate-spin text-white" />
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+
+                {/* Progress to next tier */}
                 {nextTierScore && (
                     <motion.div
-                        className="w-full max-w-lg mx-auto space-y-3"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-12 max-w-xl mx-auto"
                     >
-                        <div className="flex justify-between text-sm font-medium text-gray-400">
-                            <span>{tier.toUpperCase()}</span>
-                            <span className="text-[var(--color-primary)]">{nextTierScore - score} points to next tier</span>
+                        <div className="flex justify-between text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">
+                            <span>{tier}</span>
+                            <span style={{ color: theme.primary }}>{nextTierScore - score} XP TO {nextTierName}</span>
                         </div>
 
-                        <div className="h-3 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
+                        <div className="h-4 bg-white/5 rounded-full overflow-hidden border border-white/10 backdrop-blur-md p-1">
                             <motion.div
-                                className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] relative"
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progressToNextTier}%` }}
-                                transition={{ duration: 1.5, ease: "easeOut", delay: 0.8 }}
+                                transition={{ duration: 1.5, ease: "easeOut", delay: 0.7 }}
+                                className={cn("h-full rounded-full relative", theme.gradient)}
                             >
-                                <div className="absolute right-0 top-0 bottom-0 w-px bg-white/50 shadow-[0_0_10px_white]" />
+                                {/* Shimmer */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white shadow-[0_0_15px_white] blur-[2px]" />
                             </motion.div>
                         </div>
                     </motion.div>
                 )}
 
-                {/* Action Buttons */}
+                {/* Main Actions */}
                 <motion.div
-                    className="flex flex-wrap justify-center gap-4 relative z-20"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.9 }}
+                    className="flex flex-wrap justify-center gap-6 mt-12"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
                 >
-                    <div className="rounded-full shadow-2xl shadow-[var(--color-primary)]/20 overflow-hidden">
-                        <WalletMultiButton style={{
-                            backgroundColor: 'var(--color-primary)',
-                            height: '56px',
-                            borderRadius: '9999px',
-                            paddingLeft: '32px',
-                            paddingRight: '32px',
-                            fontWeight: 600,
-                            fontSize: '1.125rem'
-                        }} />
-                    </div>
-
-                    <Button variant="secondary" size="lg" className="rounded-full" onClick={() => setScore(Math.min(1000, score + 50))}>
+                    <Button tier={tier} size="lg" className="min-w-[200px] shadow-2xl" onClick={() => document.getElementById('swap')?.scrollIntoView({ behavior: 'smooth' })}>
+                        Start Trading
+                    </Button>
+                    <Button variant="secondary" tier={tier} size="lg" className="min-w-[200px]" onClick={() => setScore(Math.min(1000, score + 50))}>
                         Simulate Trade (+50 XP)
                     </Button>
                 </motion.div>
@@ -124,21 +130,23 @@ export const HeroSection = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.2 }}
-                    className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+                    className="mt-20 flex flex-wrap justify-center gap-12 md:gap-24"
                 >
-                    {[
-                        { label: "Rank", value: "#4,291" },
-                        { label: "Top", value: "12%" },
-                        { label: "Trades", value: "1,204" },
-                        { label: "Trust", value: "Verified" },
-                    ].map((stat, i) => (
-                        <div key={i} className="space-y-1">
-                            <div className="text-2xl font-heading font-bold text-white">{stat.value}</div>
-                            <div className="text-xs uppercase tracking-wider text-gray-500">{stat.label}</div>
-                        </div>
-                    ))}
+                    <Stat icon={TrendingUp} label="Global Rank" value="#4,291" />
+                    <Stat icon={Award} label="Percentile" value="Top 12%" />
+                    <Stat icon={Activity} label="Trust Vol" value="1.2M" />
                 </motion.div>
             </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+            >
+                <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Scroll to Explore</span>
+                <div className="w-px h-12 bg-gradient-to-b from-gray-500 to-transparent" />
+            </motion.div>
         </section>
     );
 };

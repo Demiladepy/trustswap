@@ -3,9 +3,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from './design-system/Card';
-import { TierBadge } from './design-system/TierBadge';
-import { Trophy, Crown, Medal } from 'lucide-react';
+import { getTheme, TierType } from '@/lib/theme';
+import { Trophy, Crown, Medal, TrendingUp, User } from 'lucide-react';
 import { useTier } from '@/context/TierContext';
+import { clsx, type ClassValue } from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+  return clsx(inputs);
+}
 
 const LeaderboardRow = ({
   rank,
@@ -17,101 +22,132 @@ const LeaderboardRow = ({
   rank: number,
   address: string,
   score: number,
-  tier: 'bronze' | 'silver' | 'gold' | 'diamond',
+  tier: TierType,
   isCurrentUser?: boolean
 }) => {
+  const theme = getTheme(tier);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: rank * 0.05 }}
-      className={`
-        flex items-center gap-4 p-4 rounded-xl transition-all duration-300
-        ${isCurrentUser
-          ? 'bg-[var(--color-primary)]/10 border border-[var(--color-primary)] shadow-[0_0_20px_var(--color-glow)]'
-          : 'bg-white/5 border border-transparent hover:bg-white/10'
-        }
-      `}
+      transition={{ delay: (rank % 10) * 0.05 }}
+      whileHover={{ x: 4, scale: 1.01 }}
+      className={cn(
+        "flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 border backdrop-blur-md",
+        isCurrentUser
+          ? "bg-white/10 border-white/20 shadow-2xl z-10"
+          : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
+      )}
     >
-      <div className="w-8 font-heading font-bold text-xl text-center text-gray-500">
-        {rank <= 3 ? (
-          rank === 1 ? <Crown className="text-[var(--color-gold)] w-6 h-6 mx-auto" fill="currentColor" /> :
-            rank === 2 ? <Medal className="text-[var(--color-silver)] w-6 h-6 mx-auto" /> :
-              <Medal className="text-[var(--color-bronze)] w-6 h-6 mx-auto" />
-        ) : rank}
+      <div className="w-10 flex flex-col items-center">
+        {rank === 1 && <Crown className="text-yellow-400 w-6 h-6 mb-1 filter drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" fill="currentColor" />}
+        {rank === 2 && <Medal className="text-gray-300 w-5 h-5 mb-1" />}
+        {rank === 3 && <Medal className="text-orange-500 w-5 h-5 mb-1" />}
+        <span className={cn(
+          "font-heading font-black text-lg",
+          rank <= 3 ? "text-white" : "text-gray-600"
+        )}>
+          {rank}
+        </span>
       </div>
 
-      <div className="flex-1">
-        <div className="font-mono text-sm tracking-wide text-gray-300">
-          {address}
-          {isCurrentUser && <span className="ml-2 text-xs bg-[var(--color-primary)] text-black px-2 py-0.5 rounded-full font-bold">YOU</span>}
+      <div className="flex-1 flex items-center gap-3">
+        <div className={cn(
+          "w-10 h-10 rounded-xl flex items-center justify-center p-2 shadow-inner bg-white/5",
+          isCurrentUser && "bg-white/10"
+        )}>
+          {isCurrentUser ? <User className="text-white" size={20} /> : <TrendingUp size={20} className="text-gray-700" />}
+        </div>
+        <div>
+          <div className="font-mono text-sm font-bold text-gray-200">
+            {address}
+          </div>
+          {isCurrentUser && (
+            <div className="text-[10px] font-black tracking-widest text-cyan-400 mt-0.5 uppercase">
+              Your Position
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="scale-75 origin-right">
-          {/* Simple badge approximation or use real component but small */}
-          <div className={`w-3 h-3 rounded-full ${tier === 'diamond' ? 'bg-cyan-400' :
-              tier === 'gold' ? 'bg-yellow-400' :
-                tier === 'silver' ? 'bg-gray-300' : 'bg-orange-600'
-            } shadow-[0_0_10px_currentColor]`} />
+      <div className="flex flex-col items-end gap-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-heading font-black text-white">{score}</span>
+          <div
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{
+              backgroundColor: theme.primary,
+              boxShadow: `0 0 8px ${theme.primary}`
+            }}
+          />
         </div>
-        <div className="font-heading font-bold text-lg text-white w-16 text-right">
-          {score}
-        </div>
+        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{tier}</div>
       </div>
     </motion.div>
   );
 };
 
 export const Leaderboard = () => {
-  const { score, tier } = useTier(); // Use context for current user
+  const { score, tier } = useTier();
 
   const dummyData = [
-    { address: "8x...92A1", score: 982, tier: "diamond" as const },
-    { address: "4k...3L9z", score: 945, tier: "diamond" as const },
-    { address: "2p...M4nB", score: 890, tier: "diamond" as const },
-    { address: "9z...K2j1", score: 780, tier: "gold" as const },
-    { address: "5m...P8xR", score: 755, tier: "gold" as const },
-    { address: "7v...H5c3", score: 620, tier: "gold" as const },
-    { address: "3b...N9kL", score: 540, tier: "silver" as const },
+    { address: "8x...92A1", score: 982, tier: "diamond" as TierType },
+    { address: "4k...3L9z", score: 945, tier: "diamond" as TierType },
+    { address: "2p...M4nB", score: 890, tier: "diamond" as TierType },
+    { address: "9z...K2j1", score: 780, tier: "gold" as TierType },
+    { address: "5m...P8xR", score: 755, tier: "gold" as TierType },
+    { address: "7v...H5c3", score: 620, tier: "gold" as TierType },
+    { address: "3b...N9kL", score: 540, tier: "silver" as TierType },
   ];
 
   return (
-    <Card variant="standard" className="h-full max-h-[600px] flex flex-col">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-[var(--color-surface)] rounded-xl border border-white/10">
-          <Trophy className="text-[var(--color-primary)]" size={24} />
+    <Card variant="standard" className="h-full flex flex-col relative overflow-hidden group" id="leaderboard">
+      {/* Background decoration */}
+      <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-yellow-500/5 blur-[100px] rounded-full pointer-events-none transition-opacity group-hover:opacity-100 opacity-50" />
+
+      <div className="flex items-center justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 shadow-inner">
+            <Trophy className="text-yellow-400/80" size={28} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-heading font-black text-white">LEADERBOARD</h2>
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-0.5">Global reputation rankings</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-heading font-bold">Top Traders</h2>
-          <p className="text-sm text-gray-400">Competing for 10,000 USDC</p>
+        <div className="text-right">
+          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Prize</div>
+          <div className="text-xl font-heading font-black text-yellow-400">10,000 USDC</div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar relative z-10">
         {dummyData.map((user, index) => (
           <LeaderboardRow key={index} rank={index + 1} {...user} />
         ))}
-        {/* Current User Row always visible if not in top list (simulated) */}
-        <div className="sticky bottom-0 mt-4 pt-4 border-t border-white/10 bg-gradient-to-t from-[var(--color-surface)] to-transparent p-2">
+        {/* Current User Row */}
+        <div className="sticky bottom-0 mt-6 pt-4 border-t border-white/10 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent">
           <LeaderboardRow
             rank={4291}
-            address="You...Wallet"
+            address="Your Connected Wallet"
             score={score}
-            tier={tier}
+            tier={tier as TierType}
             isCurrentUser
           />
         </div>
       </div>
 
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        className="w-full mt-4 py-3 text-sm font-medium text-[var(--color-primary)] border border-[var(--color-primary)]/30 rounded-xl hover:bg-[var(--color-primary)]/10 transition-colors"
-      >
-        View Full Leaderboard
-      </motion.button>
+      <div className="mt-8 relative z-10">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-4 text-xs font-black uppercase tracking-[0.25em] text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all"
+        >
+          Explore Global Ranking
+        </motion.button>
+      </div>
     </Card>
   );
 };

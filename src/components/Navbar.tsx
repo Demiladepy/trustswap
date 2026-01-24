@@ -1,78 +1,261 @@
 "use client";
 
-import React from 'react';
-import { Button } from './design-system/Button';
-import { TierBadge } from './design-system/TierBadge';
-import { Menu, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import {
+    Shield,
+    ArrowUpDown,
+    Trophy,
+    Crown,
+    BarChart3,
+    Wallet,
+    ChevronDown,
+    Copy,
+    ExternalLink,
+    LogOut,
+    Menu,
+    X,
+    Award
+} from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useTier } from '@/context/TierContext';
+import { getTheme } from '@/lib/theme';
+import { clsx, type ClassValue } from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+    return clsx(inputs);
+}
+
+const navLinks = [
+    { name: 'Trade', href: '#swap', icon: ArrowUpDown },
+    { name: 'Earn', href: '#quests', icon: Trophy },
+    { name: 'Leaderboard', href: '#leaderboard', icon: Crown },
+    { name: 'Analytics', href: '#analytics', icon: BarChart3 },
+];
+
+const NavLink = ({ name, href, icon: Icon, isActive }: any) => (
+    <motion.a
+        href={href}
+        className={cn(
+            "relative px-4 py-2 rounded-lg font-medium transition-all duration-300",
+            "flex items-center gap-2",
+            isActive
+                ? "text-white bg-white/10"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+        )}
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.95 }}
+    >
+        <Icon className="w-4 h-4" />
+        {name}
+        {isActive && (
+            <motion.div
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-600"
+                layoutId="activeSection"
+            />
+        )}
+    </motion.a>
+);
 
 export const Navbar = () => {
-    const [isOpen, setIsOpen] = React.useState(false);
+    const { connected, publicKey, disconnect } = useWallet();
+    const { tier, score } = useTier();
+    const theme = getTheme(tier);
+
+    const [scrolled, setScrolled] = useState(false);
+    const [hidden, setHidden] = useState(false);
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeSection, setActiveSection] = useState('#swap');
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            setScrolled(currentScrollY > 50);
+            if (currentScrollY > lastScrollY && currentScrollY > 100) setHidden(true);
+            else setHidden(false);
+            setLastScrollY(currentScrollY);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
+
+    const walletAddress = publicKey?.toString();
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0D0221]/80 backdrop-blur-xl border-b border-white/5">
-            <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-accent)] rounded-xl flex items-center justify-center font-heading font-bold text-xl text-black">
-                        TS
-                    </div>
-                    <span className="font-heading font-bold text-xl tracking-tight hidden md:block">TrustSwap</span>
-                </div>
+        <motion.nav
+            animate={{ y: hidden ? -100 : 0, opacity: hidden ? 0 : 1 }}
+            className={cn(
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+                scrolled ? "h-16 bg-gray-900/90 backdrop-blur-xl border-b border-white/10 shadow-2xl" : "h-20 bg-transparent"
+            )}
+        >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+                <div className="flex items-center justify-between h-full">
+                    {/* Logo */}
+                    <motion.div
+                        className="flex items-center gap-3 cursor-pointer"
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                        <motion.div
+                            className={cn("w-10 h-10 rounded-xl bg-gradient-to-br p-2 shadow-lg", theme.gradient)}
+                            whileHover={{ rotate: 360 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <Shield className="w-full h-full text-white" />
+                        </motion.div>
+                        <h1 className={cn(
+                            "text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r",
+                            theme.gradient
+                        )}>
+                            TrustSwap
+                        </h1>
+                    </motion.div>
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-8">
-                    {['Trade', 'Earn', 'Leaderboard', 'Analytics'].map((item) => (
-                        <a key={item} href="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-                            {item}
-                        </a>
-                    ))}
-                </div>
+                    {/* Desktop Nav */}
+                    <div className="hidden md:flex items-center gap-2">
+                        {navLinks.map((link) => (
+                            <NavLink
+                                key={link.name}
+                                {...link}
+                                isActive={activeSection === link.href}
+                            />
+                        ))}
+                    </div>
 
-                {/* Right Area */}
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:block">
-                        <TierBadge size="sm" showLabel={false} />
+                    {/* Right Area */}
+                    <div className="flex items-center gap-4">
+                        {connected && (
+                            <motion.div
+                                className={cn(
+                                    "hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border bg-opacity-20",
+                                    `bg-${tier === 'diamond' ? 'cyan' : tier === 'gold' ? 'yellow' : 'orange'}-500/10`,
+                                    `border-${tier === 'diamond' ? 'cyan' : tier === 'gold' ? 'yellow' : 'orange'}-500/30`
+                                )}
+                                style={{
+                                    backgroundColor: `${theme.primary}20`,
+                                    borderColor: `${theme.primary}40`,
+                                }}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                            >
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                    <Award className="w-4 h-4" style={{ color: theme.primary }} />
+                                </motion.div>
+                                <span className="text-sm font-bold uppercase tracking-tight" style={{ color: theme.primary }}>
+                                    {tier}
+                                </span>
+                                <span className="text-xs text-gray-400 font-mono">{score}</span>
+                            </motion.div>
+                        )}
+
+                        {!connected ? (
+                            <motion.button
+                                onClick={() => { }} // This should trigger the modal
+                                className={cn(
+                                    "px-6 py-2 rounded-xl font-semibold text-white bg-gradient-to-r transition-all duration-300",
+                                    theme.gradient
+                                )}
+                                whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${theme.glow}` }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Wallet className="w-4 h-4" />
+                                    Connect
+                                </div>
+                            </motion.button>
+                        ) : (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    className="px-4 py-2 rounded-xl font-medium bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 flex items-center gap-3"
+                                >
+                                    <div className={cn("w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center", theme.gradient)}>
+                                        <Wallet className="w-4 h-4 text-white" />
+                                    </div>
+                                    <span className="text-sm font-mono hidden sm:block">
+                                        {walletAddress?.slice(0, 4)}...{walletAddress?.slice(-4)}
+                                    </span>
+                                    <ChevronDown className={cn("w-4 h-4 transition-transform", showDropdown && "rotate-180")} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {showDropdown && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="absolute right-0 mt-2 w-64 rounded-xl bg-gray-900 border border-white/10 shadow-2xl overflow-hidden"
+                                        >
+                                            <div className="p-4 border-b border-white/10 bg-white/5">
+                                                <p className="text-xs text-gray-400 mb-1">Current Balance</p>
+                                                <p className="text-lg font-bold text-white">12.45 SOL</p>
+                                            </div>
+                                            <div className="p-2">
+                                                <button className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2">
+                                                    <Copy className="w-4 h-4" /> Copy Address
+                                                </button>
+                                                <button className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2">
+                                                    <ExternalLink className="w-4 h-4" /> View Explorer
+                                                </button>
+                                                <button
+                                                    onClick={() => disconnect()}
+                                                    className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 mt-1"
+                                                >
+                                                    <LogOut className="w-4 h-4" /> Disconnect
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        )}
+
+                        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-white p-2 hover:bg-white/5 rounded-lg">
+                            {mobileMenuOpen ? <X /> : <Menu />}
+                        </button>
                     </div>
-                    {/* Using Custom Styled Wallet Button wrapper over the adapter's button */}
-                    <div className="hidden md:block rounded-xl overflow-hidden shadow-lg shadow-[var(--color-primary)]/20 border border-[var(--color-primary)]/20">
-                        <WalletMultiButton style={{
-                            backgroundColor: 'transparent',
-                            height: '40px',
-                            color: 'white',
-                            fontWeight: 600,
-                            fontSize: '0.875rem'
-                        }} />
-                    </div>
-                    <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white">
-                        {isOpen ? <X /> : <Menu />}
-                    </button>
                 </div>
             </div>
 
             {/* Mobile Menu */}
             <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden border-t border-white/10 bg-[#0D0221]"
-                    >
-                        <div className="flex flex-col p-6 gap-4">
-                            {['Trade', 'Earn', 'Leaderboard', 'Analytics'].map((item) => (
-                                <a key={item} href="#" className="text-lg font-medium text-gray-400 hover:text-white py-2">
-                                    {item}
-                                </a>
-                            ))}
-                            <div className="w-full">
-                                <WalletMultiButton style={{ width: '100%' }} />
+                {mobileMenuOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                        />
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            className="fixed right-0 top-0 bottom-0 w-80 bg-gray-900 border-l border-white/10 z-50 md:hidden flex flex-col p-6"
+                        >
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-xl font-bold">Menu</h2>
+                                <button onClick={() => setMobileMenuOpen(false)}><X /></button>
                             </div>
-                        </div>
-                    </motion.div>
+                            <div className="space-y-2">
+                                {navLinks.map((link) => (
+                                    <a key={link.name} href={link.href} className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                                        <link.icon className="w-5 h-5" />
+                                        <span className="font-medium text-lg">{link.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
-        </nav>
+        </motion.nav>
     );
 };
