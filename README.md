@@ -2,7 +2,7 @@
 
 A production-ready token swap platform on Solana where **FairScale reputation scores determine user experience, fees, limits, and feature access**. Built for the $700 USDC bounty challenge.
 
-## 🚀 Project Overview
+##  Project Overview
 
 TrustSwap integrates FairScale's reputation scoring system into a DEX, creating a trust-based trading ecosystem with:
 - **Dynamic fees** (0.5% to 0%) based on reputation tier
@@ -11,7 +11,7 @@ TrustSwap integrates FairScale's reputation scoring system into a DEX, creating 
 - **AI risk assessment** using Claude API
 - **Beautiful, animated UI** with particle effects and glass morphism
 
-## 📊 Tier System
+##  Tier System
 
 | Tier | Score | Fee | Daily Limit | Features |
 |------|-------|-----|-------------|----------|
@@ -20,7 +20,7 @@ TrustSwap integrates FairScale's reputation scoring system into a DEX, creating 
 | **Gold** | 600-799 | 0.1% | $50K | MEV protection, limit orders, analytics |
 | **Diamond** | 800+ | 0% | Unlimited | All features + VIP treatment |
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **Next.js 14** (App Router)
@@ -37,7 +37,7 @@ TrustSwap integrates FairScale's reputation scoring system into a DEX, creating 
 - **FairScale API** (reputation scores)
 - **Anthropic Claude API** (AI risk analysis)
 
-## 🚀 Getting Started
+##  Getting Started
 
 First, run the development server:
 
