@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpDown, Settings, Info, ChevronDown, RotateCw, Wallet, Loader2, Sparkles } from 'lucide-react';
+import { ArrowUpDown, Settings, Info, ChevronDown, RotateCw, Wallet, Loader2, Sparkles, Shield } from 'lucide-react';
 import { Card } from './design-system/Card';
 import { Button } from './design-system/Button';
 import { useTier } from '@/context/TierContext';

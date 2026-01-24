@@ -20,6 +20,7 @@ describe('Solana Integration', () => {
             });
 
             expect(quote).toBeDefined();
+            if (!quote) throw new Error('Quote failed');
             expect(quote.outAmount).toBeDefined();
         });
 
