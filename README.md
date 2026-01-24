@@ -1,73 +1,128 @@
-# TrustSwap - Solana DEX with FairScale Reputation Scoring
+# TrustSwap - FairScale-Powered Solana DEX
 
-A production-ready token swap platform on Solana where **FairScale reputation scores determine user experience, fees, limits, and feature access**. Built for the $700 USDC bounty challenge.
+![TrustSwap Hero](https://i.imgur.com/example-hero.png)
 
-##  Project Overview
+## The Problem
+DeFi treats all users equally. Bots exploit systems. No reward for trust.
 
-TrustSwap integrates FairScale's reputation scoring system into a DEX, creating a trust-based trading ecosystem with:
-- **Dynamic fees** (0.5% to 0%) based on reputation tier
-- **Tier-gated features** (limit orders, MEV protection, exclusive pools)
-- **Gamification** (quests, achievements, leaderboards)
-- **AI risk assessment** using Claude API
-- **Beautiful, animated UI** with particle effects and glass morphism
+## The Solution  
+TrustSwap uses FairScale reputation to create tiered trading:
+- 🥉 **Bronze (0-299)**: Standard fees, basic access
+- 🥈 **Silver (300-599)**: 40% fee discount, higher limits
+- 🥇 **Gold (600-799)**: 80% fee discount, exclusive pools
+- 💎 **Diamond (800+)**: 0% fees, unlimited, VIP features
 
-##  Tier System
+---
 
-| Tier | Score | Fee | Daily Limit | Features |
-|------|-------|-----|-------------|----------|
-| **Bronze** | 0-299 | 0.5% | $1K | Basic swap, standard support |
-| **Silver** | 300-599 | 0.3% | $10K | Priority routing, premium support |
-| **Gold** | 600-799 | 0.1% | $50K | MEV protection, limit orders, analytics |
-| **Diamond** | 800+ | 0% | Unlimited | All features + VIP treatment |
+## 🚀 Features
 
-##  Tech Stack
+### Score-Gated Access ✅
+- **Diamond Pool**: Exclusive tokens for 800+ scores
+- **Tiered Fees**: Dynamic fee discounts based on your FairScore
+- **Loyalty XP**: Earn XP for every trade to climb ranks
 
-### Frontend
-- **Next.js 14** (App Router)
-- **React 19** + TypeScript
-- **TailwindCSS 4** + shadcn/ui
-- **Framer Motion** (animations)
-- **Recharts** (data visualization)
-- **Zustand** (state management)
+### Risk Management ✅
+- **AI Risk Analyzer**: Powered by Claude API to assess trade risk in real-time
+- **Reputation Staking**: Stake your score for double rewards (with risk!)
+- **Trust Network**: Visualize your on-chain connections
 
-### Blockchain & APIs
-- **@solana/web3.js** (Solana blockchain)
-- **@solana/wallet-adapter** (wallet integration)
-- **Jupiter Aggregator API** (token swaps)
-- **FairScale API** (reputation scores)
-- **Anthropic Claude API** (AI risk analysis)
+### Unique Innovations 💎
+- **Real-time FairScale API Integration**
+- **Interactive React Flow Trust Graph**
+- **Jupiter Aggregator Swap Execution**
+- **Beautiful Glassmorphism UI**
 
-##  Getting Started
+---
 
-First, run the development server:
+## 🛠 Tech Stack
 
+- **Frontend**: Next.js 14, React, TypeScript, TailwindCSS
+- **Blockchain**: Solana Web3.js, Wallet Adapter
+- **DeFi**: Jupiter Aggregator API
+- **Data**: FairScale API, Recharts
+- **AI**: Anthropic Claude API (Mocked for Demo)
+- **Visuals**: Framer Motion, React Flow, Particles
+
+---
+
+## 📦 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- Solana Wallet (Phantom, Backpack, Solflare)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Demiladepy/trustswap.git
+cd trustswap
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install --legacy-peer-deps
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🔧 Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a `.env.local` file:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+NEXT_PUBLIC_FAIRSCALE_API_URL=https://api.fairscale.xyz/
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧩 Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```mermaid
+graph TD
+    User[User Wallet] --> Adapter[Wallet Adapter]
+    Adapter --> Context[Wallet Context]
+    Context --> FairScale[FairScale API]
+    FairScale --> Store[Zustand Store]
+    Store --> UI[UI Components]
+    
+    UI --> Swap[Swap Interface]
+    Swap --> Jupiter[Jupiter API]
+    Swap --> Claude[Claude AI Risk]
+    
+    Store --> Visuals[Charts/Network]
+```
+
+---
+
+## 🔮 Roadmap
+
+- [x] Phase 1: Core UI & Tier System
+- [x] Phase 2: Wallet Integration
+- [x] Phase 3: Swap Functionality
+- [x] Phase 4: Leaderboard & Quests
+- [x] Phase 5: AI Integration (MVP)
+- [ ] Phase 6: Mainnet Launch
+- [ ] Phase 7: Mobile App
+
+---
+
+## 🏆 Hackathon Notes
+
+This project was built for the **FairScale Bounty**. 
+Key differentiators:
+1. **AI Integration**: Specific risk analysis for every trade.
+2. **Reputation Staking**: Novel mechanism to leverage social capital.
+3. **Visual Excellence**: Premium design system and animations.
+
+---
+
+*(c) 2026 TrustSwap Team*

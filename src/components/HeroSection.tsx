@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useTier } from '@/context/TierContext';
 import { TierBadge } from './design-system/TierBadge';
+import { ParticleBackground } from './ParticleBackground';
 import { Button } from './design-system/Button';
 import { Wallet } from 'lucide-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -37,10 +38,10 @@ export const HeroSection = () => {
 
     return (
         <section className="relative min-h-[60vh] flex flex-col items-center justify-center overflow-hidden px-4 py-20 z-10">
-            {/* Background Ambience - pointer-events-none ensures clicks pass through */}
+            {/* Background Ambience */}
+            <ParticleBackground tier={tier} />
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--color-primary)] opacity-10 blur-[100px] rounded-full animate-pulse-slow" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-accent)] opacity-5 blur-[80px] rounded-full" />
             </div>
 
             <div className="relative z-10 container max-w-4xl mx-auto text-center space-y-12">
