@@ -11,6 +11,7 @@ interface TierContextType {
     score: number;
     tier: Tier;
     data: FairScoreData | null;
+    setScore: (score: number) => void;
     nextTierScore: number | null;
     progressToNextTier: number;
     isLoading: boolean;
@@ -68,11 +69,16 @@ export const TierProvider = ({ children }: { children: ReactNode }) => {
         if (publicKey) fetchScore(publicKey.toString());
     };
 
+    const setScore = (score: number) => {
+        useFairScoreStore.getState().setScoreValue(score);
+    };
+
     return (
         <TierContext.Provider value={{
             score,
             tier,
             data,
+            setScore,
             nextTierScore,
             progressToNextTier: calculateProgress(),
             isLoading,

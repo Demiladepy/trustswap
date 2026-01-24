@@ -7,6 +7,7 @@ interface FairScoreState {
     error: string | null;
     fetchScore: (wallet: string) => Promise<void>;
     setScore: (data: FairScoreData) => void;
+    setScoreValue: (score: number) => void;
     reset: () => void;
 }
 
@@ -30,5 +31,12 @@ export const useFairScoreStore = create<FairScoreState>((set) => ({
     },
 
     setScore: (data) => set({ data }),
+    setScoreValue: (score) => set((state) => ({
+        data: state.data ? {
+            ...state.data,
+            score,
+            tier: getTierFromScore(score)
+        } : null
+    })),
     reset: () => set({ data: null, error: null, isLoading: false })
 }));
