@@ -40,7 +40,7 @@ const TokenInput = ({
   readOnly
 }: TokenInputProps) => (
   <div className="group relative">
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+    <div className="absolute -inset-0.5 bg-linear-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
     <div className="relative bg-black/40 rounded-2xl p-4 border border-white/5 group-hover:border-white/10 transition-all duration-300">
       <div className="flex justify-between items-center mb-3">
         <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</span>
@@ -72,7 +72,7 @@ const TokenInput = ({
               {token.logoURI ? (
                 <img src={token.logoURI} alt={token.symbol} className="w-7 h-7 rounded-full shadow-lg" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-[10px] uppercase font-bold text-white">
+                <div className="w-7 h-7 rounded-full bg-linear-to-br from-gray-700 to-gray-800 flex items-center justify-center text-[10px] uppercase font-bold text-white">
                   {token.symbol[0]}
                 </div>
               )}
@@ -195,9 +195,9 @@ export const SwapInterface = () => {
 
   return (
     <div className="w-full max-w-lg mx-auto relative group" id="swap">
-      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-2xl rounded-[2.5rem] opacity-50 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute -inset-1 bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-2xl rounded-4xl opacity-50 group-hover:opacity-100 transition-opacity" />
 
-      <Card variant="elevated" className="relative z-10 p-2 overflow-visible rounded-[2rem] border-white/10" tier={tier}>
+      <Card variant="elevated" className="relative z-10 p-2 overflow-visible rounded-4xl border-white/10" tier={tier}>
         <div className="p-6">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -226,11 +226,11 @@ export const SwapInterface = () => {
                 whileHover={{ scale: 1.1, boxShadow: `0 0 20px ${theme.glow}` }}
                 whileTap={{ scale: 0.9 }}
                 className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl border-4 border-[#1E1E2E] transition-all",
+                  "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl border-4 border-surface transition-all",
                   theme.gradient
                 )}
               >
-                <ArrowUpDown size={22} className="stroke-[3]" />
+                <ArrowUpDown size={22} className="stroke-3" />
               </motion.button>
             </div>
 
@@ -278,7 +278,7 @@ export const SwapInterface = () => {
           <div className="mt-8">
             {!connected ? (
               <div className="group/wal">
-                <WalletMultiButton className="!w-full !h-16 !rounded-2xl !bg-gradient-to-r !from-blue-600 !to-cyan-500 !text-white !font-black !text-lg !shadow-xl !border-none !flex !justify-center !items-center !transition-transform active:!scale-95" />
+                <WalletMultiButton className="w-full h-16 rounded-2xl bg-linear-to-r from-blue-600 to-cyan-500 text-white font-black text-lg shadow-xl border-none flex justify-center items-center transition-transform active:scale-95" />
               </div>
             ) : (
               <Button

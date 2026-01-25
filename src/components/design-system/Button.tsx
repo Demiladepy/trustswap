@@ -14,14 +14,14 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const buttonVariants = cva(
-    "relative inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 disabled:grayscale disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden",
+    "relative inline-flex items-center justify-center rounded-2xl font-semibold transition-all duration-300 disabled:grayscale disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden",
     {
         variants: {
             variant: {
-                primary: "text-white shadow-lg",
-                secondary: "bg-white/5 border-2 hover:bg-white/10",
-                ghost: "bg-transparent hover:bg-white/5",
-                icon: "p-0 aspect-square bg-white/5 text-white hover:bg-white/10",
+                primary: "text-white bg-gradient-to-r from-[#5F72BE] to-[#9B23EA] shadow-xl hover:from-[#9B23EA] hover:to-[#5F72BE]",
+                secondary: "bg-gradient-to-r from-[#232946] to-[#181C2A] border-2 border-[#3B4261]/60 text-white hover:bg-[#232946]/80",
+                ghost: "bg-transparent hover:bg-white/10 text-white",
+                icon: "p-0 aspect-square bg-gradient-to-br from-[#232946] to-[#181C2A] text-white hover:bg-[#232946]/80",
             },
             size: {
                 default: "h-12 px-8 text-base",
@@ -93,7 +93,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
                     {/* Shimmer effect on hover */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
                         initial={{ x: '-100%' }}
                         whileHover={{ x: '100%' }}
                         transition={{ duration: 0.6 }}

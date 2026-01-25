@@ -26,10 +26,10 @@ export const Card = ({
     const theme = tier ? getTheme(tier) : null;
 
     const variants = {
-        standard: "bg-white/5 border-white/10 shadow-xl p-6",
-        elevated: "bg-[#1E1E2E]/80 border-white/10 shadow-2xl p-8",
-        compact: "bg-white/5 border-white/5 p-4",
-        glass: "bg-white/5 border-white/10 shadow-2xl overflow-hidden",
+        standard: "bg-gradient-to-br from-[#181C2A] to-[#232946] border-[#2E3650]/40 shadow-2xl p-8",
+        elevated: "bg-gradient-to-br from-[#232946] to-[#181C2A] border-[#3B4261]/60 shadow-3xl p-10",
+        compact: "bg-gradient-to-br from-[#232946] to-[#181C2A] border-[#232946]/30 p-5",
+        glass: "bg-white/10 backdrop-blur-2xl border-white/20 shadow-2xl overflow-hidden",
     };
 
     return (

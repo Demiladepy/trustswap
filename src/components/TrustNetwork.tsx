@@ -27,13 +27,13 @@ const UserNode = ({ data }: { data: { label: string, tier: string } }) => {
                 style={{ background: theme.glow }}
             />
             <div
-                className="relative px-6 py-3 rounded-full border-2 bg-gray-900 text-white font-black shadow-2xl flex flex-col items-center min-w-[100px]"
+                className="relative px-6 py-3 rounded-full border-2 bg-gray-900 text-white font-black shadow-2xl flex flex-col items-center min-w-25"
                 style={{ borderColor: theme.primary }}
             >
-                <Handle type="source" position={Position.Top} className="!bg-white !w-1 !h-1 !border-none" />
-                <Handle type="source" position={Position.Right} className="!bg-white !w-1 !h-1 !border-none" />
-                <Handle type="source" position={Position.Bottom} className="!bg-white !w-1 !h-1 !border-none" />
-                <Handle type="source" position={Position.Left} className="!bg-white !w-1 !h-1 !border-none" />
+                <Handle type="source" position={Position.Top} className="bg-white! w-1! h-1! border-none!" />
+                <Handle type="source" position={Position.Right} className="bg-white! w-1! h-1! border-none!" />
+                <Handle type="source" position={Position.Bottom} className="bg-white! w-1! h-1! border-none!" />
+                <Handle type="source" position={Position.Left} className="bg-white! w-1! h-1! border-none!" />
 
                 <span className="text-xs uppercase tracking-tighter opacity-50 mb-0.5">Primary Node</span>
                 <span className="text-sm tracking-tight">{data.label}</span>
@@ -50,10 +50,10 @@ const PeerNode = ({ data }: { data: { label: string, tier: string } }) => {
             className="px-4 py-2 rounded-xl border bg-gray-900/60 backdrop-blur-md transition-all hover:scale-110 hover:bg-gray-800"
             style={{ borderColor: `${theme.primary}40` }}
         >
-            <Handle type="target" position={Position.Top} className="!bg-transparent !border-none" />
-            <Handle type="target" position={Position.Bottom} className="!bg-transparent !border-none" />
-            <Handle type="target" position={Position.Left} className="!bg-transparent !border-none" />
-            <Handle type="target" position={Position.Right} className="!bg-transparent !border-none" />
+            <Handle type="target" position={Position.Top} className="bg-transparent! border-none!" />
+            <Handle type="target" position={Position.Bottom} className="bg-transparent! border-none!" />
+            <Handle type="target" position={Position.Left} className="bg-transparent! border-none!" />
+            <Handle type="target" position={Position.Right} className="bg-transparent! border-none!" />
             <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.primary }} />
                 <div className="text-[10px] font-mono font-bold text-gray-400">{data.label}</div>
@@ -111,7 +111,7 @@ export const TrustNetwork = () => {
     }, [tier, setNodes]);
 
     return (
-        <div className="w-full h-full min-h-[500px] border border-white/5 rounded-[2rem] overflow-hidden bg-black/40 relative group shadow-2xl backdrop-blur-sm">
+        <div className="w-full h-full min-h-125 border border-white/5 rounded-4xl overflow-hidden bg-black/40 relative group shadow-2xl backdrop-blur-sm">
             <div className="absolute top-6 left-6 z-10 pointer-events-none flex items-center gap-4">
                 <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-inner backdrop-blur-md">
                     <Network className="text-blue-400" size={24} />
@@ -144,7 +144,7 @@ export const TrustNetwork = () => {
                 <Controls className="bg-white/10 border border-white/20 text-white fill-white rounded-xl overflow-hidden scale-75 origin-bottom-left" />
             </ReactFlow>
 
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-gray-900/40 via-transparent to-transparent opacity-80" />
+            <div className="absolute inset-0 pointer-events-none bg-linear-to-t from-gray-900/40 via-transparent to-transparent opacity-80" />
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-white/5 backdrop-blur-md border border-white/5 px-4 py-2 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
                 Interactive Exploration Active
             </div>
