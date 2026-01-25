@@ -26,24 +26,24 @@ export const Card = ({
     const theme = tier ? getTheme(tier) : null;
 
     const variants = {
-        standard: "bg-gradient-to-br from-[#181C2A] to-[#232946] border-[#2E3650]/40 shadow-2xl p-8",
-        elevated: "bg-gradient-to-br from-[#232946] to-[#181C2A] border-[#3B4261]/60 shadow-3xl p-10",
-        compact: "bg-gradient-to-br from-[#232946] to-[#181C2A] border-[#232946]/30 p-5",
-        glass: "bg-white/10 backdrop-blur-2xl border-white/20 shadow-2xl overflow-hidden",
+        standard: "bg-[#0A0A0A] solana-gradient border border-white/10 shadow-2xl p-8",
+        elevated: "bg-[#0A0A0A] solana-gradient border border-white/20 shadow-3xl p-10 glass-panel-heavy",
+        compact: "bg-[#0A0A0A] solana-gradient border border-white/10 p-5",
+        glass: "bg-white/10 solana-gradient backdrop-blur-2xl border-white/20 shadow-2xl overflow-hidden glass-panel",
     };
 
     return (
         <motion.div
             className={cn(
-                "rounded-2xl backdrop-blur-xl border transition-all duration-300",
+                "rounded-2xl border transition-all duration-300 glass-panel solana-gradient",
                 variants[variant],
                 theme && theme.shadow,
                 className
             )}
             style={theme ? {
-                boxShadow: `0 0 40px ${theme.glow}, 0 20px 25px -5px rgba(0, 0, 0, 0.3)`
+                boxShadow: `0 0 40px var(--glow-purple), 0 20px 25px -5px rgba(0, 0, 0, 0.3)`
             } : {}}
-            whileHover={hover ? { y: -4, scale: 1.01 } : {}}
+            whileHover={hover ? { y: -4, scale: 1.02, boxShadow: '0 0 60px var(--glow-green)' } : {}}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}

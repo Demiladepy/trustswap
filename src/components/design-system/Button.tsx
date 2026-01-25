@@ -14,7 +14,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const buttonVariants = cva(
-    "relative inline-flex items-center justify-center rounded-2xl font-semibold transition-all duration-300 disabled:grayscale disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden",
+    "relative inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 disabled:grayscale disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden solana-gradient text-shadow text-glow",
     {
         variants: {
             variant: {
@@ -76,7 +76,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 className={cn(buttonVariants({ variant, size, fullWidth }), getTierStyles(), className)}
                 ref={ref}
                 style={customStyle}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: '0 0 20px var(--glow-purple)' }}
                 whileTap={{ scale: 0.95 }}
                 {...props}
             >
@@ -91,9 +91,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         </>
                     )}
 
-                    {/* Shimmer effect on hover */}
+                    {/* Animated gradient shimmer effect on hover */}
                     <motion.div
-                        className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
+                        className="absolute inset-0 solana-gradient opacity-0 group-hover:opacity-100"
                         initial={{ x: '-100%' }}
                         whileHover={{ x: '100%' }}
                         transition={{ duration: 0.6 }}

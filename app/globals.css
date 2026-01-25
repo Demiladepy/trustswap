@@ -20,17 +20,36 @@
 }
 
 :root {
-  /* Default to Bronze if not set */
-  --color-primary: #CD7F32;
-  --color-primary-dark: #B87333;
-  --color-accent: #FF6B35;
-  --color-bg-start: #1A0F0A;
-  --color-bg-end: #2D1810;
-  --color-glow: rgba(255, 140, 66, 0.2);
-  
-  --font-inter: "Inter", sans-serif;
-  --font-space-grotesk: "Space Grotesk", sans-serif;
-  --font-jetbrains-mono: "JetBrains Mono", monospace;
+  /* Solana Brand Colors */
+  --solana-purple: #9945FF;
+  --solana-green: #14F195;
+  --solana-blue: #03E1FF;
+  --solana-black: #000000;
+  --gradient-primary: linear-gradient(135deg, #9945FF, #14F195);
+  --gradient-glow: radial-gradient(circle, #9945FF, transparent);
+  --glow-purple: 0 0 20px rgba(153, 69, 255, 0.5);
+  --glow-green: 0 0 20px rgba(20, 241, 149, 0.5);
+  --color-primary: var(--solana-purple);
+  --color-primary-dark: #6B21A8;
+  --color-accent: var(--solana-green);
+  --color-bg-start: #0A0A0A;
+  --color-bg-end: #1A1A1A;
+  --color-glow: var(--glow-purple);
+  --font-display: 'Orbitron', 'Space Mono', 'Rajdhani', 'Exo 2', monospace;
+  --font-body: 'IBM Plex Sans', 'DM Sans', 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+/* Solana Gradient Utility */
+.solana-gradient {
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 }
 
 [data-tier="bronze"] {

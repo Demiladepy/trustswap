@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Shield,
@@ -37,21 +39,25 @@ const NavLink = ({ name, href, icon: Icon, isActive }: any) => (
     <motion.a
         href={href}
         className={cn(
-            "relative px-4 py-2 rounded-lg font-medium transition-all duration-300",
-            "flex items-center gap-2",
+            "relative px-5 py-2 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2",
             isActive
-                ? "text-white bg-white/10"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "text-white solana-gradient shadow-lg"
+                : "text-gray-400 hover:text-white hover:solana-gradient hover:shadow-md"
         )}
-        whileHover={{ y: -2 }}
+        whileHover={{ y: -2, scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        style={{
+            borderRadius: '10px',
+            boxShadow: isActive ? '0 0 20px var(--glow-purple)' : undefined,
+        }}
     >
         <Icon className="w-4 h-4" />
         {name}
         {isActive && (
             <motion.div
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-600"
+                className="absolute bottom-0 left-0 right-0 h-1 solana-gradient"
                 layoutId="activeSection"
+                style={{ borderRadius: '2px', boxShadow: '0 0 8px var(--solana-green)' }}
             />
         )}
     </motion.a>
@@ -59,6 +65,7 @@ const NavLink = ({ name, href, icon: Icon, isActive }: any) => (
 
 export const Navbar = () => {
     const { connected, publicKey, disconnect } = useWallet();
+    const { setVisible } = useWalletModal();
     const { tier, score } = useTier();
     const theme = getTheme(tier);
 
@@ -104,7 +111,7 @@ export const Navbar = () => {
                             whileHover={{ rotate: 360 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <Shield className="w-full h-full text-white" />
+                            <Image src="/laptop-logo.png" alt="TrustSwap Logo" width={40} height={40} className="w-full h-full object-contain rounded-lg" />
                         </motion.div>
                         <h1 className={cn(
                             "text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r",
@@ -156,7 +163,7 @@ export const Navbar = () => {
 
                         {!connected ? (
                             <motion.button
-                                onClick={() => { }} // This should trigger the modal
+                                onClick={() => setVisible(true)}
                                 className={cn(
                                     "px-6 py-2 rounded-xl font-semibold text-white bg-gradient-to-r transition-all duration-300",
                                     theme.gradient
